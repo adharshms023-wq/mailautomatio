@@ -122,5 +122,4 @@ EMAIL_HOST_PASSWORD = 'eujz gqyp gknj fajn'
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
-
- 
+GROQ_API_KEY = ""
