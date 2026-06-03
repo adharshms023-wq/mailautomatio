@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Email Dashboard</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            background: #f4f6f9;
+        }
+
+        .container {
+            width: 600px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            margin-top: 30px;
+            border-radius: 10px;
+        }
+
+        .template-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            cursor: pointer;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .card:hover {
+            background: #eaf2ff;
+        }
+
+        input, textarea {
+            width: 100%;
+            margin: 10px 0;
+            padding: 10px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background: green;
+            color: white;
+            border: none;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>📧 Email Automation Dashboard</h2>
+
+{% if message %}
+<p style="color:green;">{{ message }}</p>
+{% endif %}
+
+<!-- TEMPLATE DISPLAY -->
+<h3>Choose Template</h3>
+
+<div class="template-box">
+    {% for key, t in templates.items %}
+        <div class="card">
+            <b>{{ key|title }}</b><br>
+            <small>{{ t.subject }}</small>
+
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="template" value="{{ key }}">
+                <input type="file" name="file" required>
+                <button type="submit">Use</button>
+            </form>
+        </div>
+    {% endfor %}
+</div>
+
+<hr>
+
+<h3>OR Custom Email</h3>
+
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <input type="text" name="subject" placeholder="Subject">
+
+    <textarea name="message" placeholder="Message"></textarea>
+
+    <input type="file" name="file" required>
+
+    <button>Send Custom Email</button>
+</form>
+
+</div>
+
+</body>
+</html>
