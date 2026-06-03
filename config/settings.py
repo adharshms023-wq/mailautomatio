@@ -124,22 +124,12 @@ EMAIL_HOST_PASSWORD = 'eujz gqyp gknj fajn'
 STATIC_URL = 'static/'
 GROQ_API_KEY = ""
 
+import dj_database_url
 import os
 
-# Allow your Vercel domain
-ALLOWED_HOSTS = ['.vercel.app', 'localhost', '127.0.0.1']
-
-# Static files via WhiteNoise
-MIDDLEWARE = [
-    'whitenoise.middleware.WhiteNoiseMiddleware',
-    # ... your other middleware
-]
-
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATIC_URL = '/static/'
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-import dj_database_url
-
 DATABASES = {
-    'default': dj_database_url.parse(os.environ['DATABASE_URL'])
+    'default': dj_database_url.config(
+        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
+        conn_max_age=600
+    )
 }
