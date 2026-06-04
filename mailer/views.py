@@ -1,41 +1,6 @@
 from django.shortcuts import render
 from django.core.mail import EmailMultiAlternatives
-from django.conf import settings
-from groq import Groq
 
-
-# ---------------- GROQ SETUP ----------------
-client = Groq(api_key=settings.GROQ_API_KEY)
-
-
-def generate_ai_email(idea, tone):
-
-    response = client.chat.completions.create(
-        model="llama3-70b-8192",
-        messages=[
-            {
-                "role": "system",
-                "content": "You are an expert email marketing assistant."
-            },
-            {
-                "role": "user",
-                "content": f"""
-Create a professional email.
-
-Idea: {idea}
-Tone: {tone}
-
-Return:
-SUBJECT:
-HEADLINE:
-BODY:
-CTA:
-"""
-            }
-        ]
-    )
-
-    return response.choices[0].message.content
 
 # ---------------- HTML TEMPLATE ----------------
 def build_template(subject, content, style="startup"):
@@ -90,7 +55,6 @@ def home(request):
 
         action = request.POST.get("action")
         idea = request.POST.get("content")
-        tone = request.POST.get("tone")
         style = request.POST.get("style")
         subject_manual = request.POST.get("subject")
         emails_text = request.POST.get("emails", "")
@@ -101,25 +65,13 @@ def home(request):
             if e.strip()
         ]
 
-        # ---------------- GENERATE ----------------
-        if action == "generate":
+        # Preview
+        if action == "preview":
 
-            ai_output = generate_ai_email(idea, tone)
+            subject = subject_manual or "No Subject"
+            preview = build_template(subject, idea, style)
 
-            lines = ai_output.split("\n")
-
-            subject = ""
-            body = ""
-
-            for line in lines:
-                if "SUBJECT:" in line:
-                    subject = line.replace("SUBJECT:", "").strip()
-                else:
-                    body += line + "\n"
-
-            preview = build_template(subject, body, style)
-
-        # ---------------- SEND ----------------
+        # Send Emails
         elif action == "send":
 
             subject = subject_manual or "No Subject"
@@ -135,14 +87,14 @@ def home(request):
                     msg = EmailMultiAlternatives(
                         subject,
                         content,
-                        "yourgmail@gmail.com",
+                        None,
                         [email],
                     )
                     msg.attach_alternative(html, "text/html")
                     msg.send()
                     count += 1
-                except:
-                    pass
+                except Exception as e:
+                    print(e)
 
             preview += f"<p style='color:green;'>Sent {count} emails</p>"
 
